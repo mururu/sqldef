@@ -23,6 +23,7 @@ func parseOptions(args []string) (adapter.Config, *sqldef.Options) {
 		Port     uint   `short:"p" long:"port" description:"Port used for the connection" value-name:"port" default:"5432"`
 		Prompt   bool   `long:"password-prompt" description:"Force PostgreSQL user password prompt"`
 		File     string `short:"f" long:"file" description:"Read schema SQL from the file, rather than stdin" value-name:"filename" default:"-"`
+		Schema   string `short:"s" long:"schema" description:"PostgreSQL schema name" value-name:"schema" default:"public"`
 		DryRun   bool   `long:"dry-run" description:"Don't run DDLs but just show them"`
 		Export   bool   `long:"export" description:"Just dump the current schema to stdout"`
 		SkipDrop bool   `long:"skip-drop" description:"Skip destructive changes such as DROP"`
@@ -75,6 +76,7 @@ func parseOptions(args []string) (adapter.Config, *sqldef.Options) {
 
 	config := adapter.Config{
 		DbName:   database,
+		Schema:   opts.Schema,
 		User:     opts.User,
 		Password: password,
 		Host:     opts.Host,

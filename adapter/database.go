@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	DbName   string
+	Schema   string
 	User     string
 	Password string
 	Host     string

@@ -26,13 +26,15 @@ func NewDatabase(config adapter.Config) (adapter.Database, error) {
 
 	return &PostgresDatabase{
 		db:     db,
+		schema: config.Schema,
 		config: config,
 	}, nil
 }
 
 func (d *PostgresDatabase) TableNames() ([]string, error) {
-	rows, err := d.db.Query("select table_name from information_schema.tables where table_schema='public';")
+	rows, err := d.db.Query("select table_name from information_schema.tables where table_schema=$1;", d.config.Schema)
 	if err != nil {
+
 		return nil, err
 	}
 	defer rows.Close()
@@ -65,12 +67,12 @@ func (d *PostgresDatabase) DumpTableDDL(table string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return buildDumpTableDDL(table, cols, primaryKeyDef, indexDefs, foreginDefs), nil
+	return buildDumpTableDDL(d.config.Schema, table, cols, primaryKeyDef, indexDefs, foreginDefs), nil
 }
 
-func buildDumpTableDDL(table string, columns []column, primaryKeyDef string, indexDefs, foreginDefs []string) string {
+func buildDumpTableDDL(schema string, table string, columns []column, primaryKeyDef string, indexDefs, foreginDefs []string) string {
 	var queryBuilder strings.Builder
-	fmt.Fprintf(&queryBuilder, "CREATE TABLE public.%s (\n", table)
+	fmt.Fprintf(&queryBuilder, "CREATE TABLE %s.%s (\n", schema, table)
 	for i, col := range columns {
 		isLast := i == len(columns)-1
 		fmt.Fprint(&queryBuilder, indent)
